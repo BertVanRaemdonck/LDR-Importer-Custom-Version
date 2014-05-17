@@ -147,6 +147,39 @@ def checkEncoding(file_path):
         return "utf_8"
 
 
+def readPart(partFile):
+
+    # Only a few of the official META commands,
+    # http://www.ldraw.org/article/401.html
+    metaCommands = [b"0 ", b"!LDRAW_ORG", b"LDRAW_ORG", b"Name"]
+
+    with open(partFile, "rb") as f:
+        partContent = f.readlines()
+
+    """
+    Preform a four-fold check:
+     * Blank lines
+     * Lines that start with 0
+     * Lines that do NOT start with a 0 and +
+     * Lines that do NOT start with a 0 and -
+    """
+
+    for command in metaCommands:
+        for line in partContent:
+
+            # A line that meet tha criteria was found, remove it from the data
+            if (
+                line == b"\r\n" or line.startswith(b"0") and
+                not (line.startswith(b"0 +") or line.startswith(b"0 -"))
+            ):
+                del partContent[partContent.index(line)]
+
+    # Convert the data back to strings
+    newPartContent = [strLine.decode("utf-8") for strLine in partContent]
+
+    return newPartContent
+
+
 class LDrawFile(object):
     """Scans LDraw files"""
     #FIXME: v1.2 rewrite - Rewrite entire class (#35)
@@ -268,27 +301,28 @@ class LDrawFile(object):
 
                 # Check encoding of `filename` for non UTF-8 compatibility
                 # GitHub Issue #37
-                file_encode = checkEncoding(filename)
+                #fileEncode = checkEncoding(filename)
 
                 # Check if this is a main part or a subpart
                 if not isSubPart(filename):
                     isPart = True
 
                 # Read the brick using relative path (to entire model)
-                with open(filename, "rt", encoding=file_encode) as f_in:
-                    lines = f_in.readlines()
+                #with open(filename, "rt", encoding=fileEncode) as f_in:
+                    #lines = f_in.readlines()
+
+                lines = readPart(filename)
 
             else:
                 # Search for the brick in the various folders
                 fname, isPart = locate(filename)
 
-                # Check encoding of `fname` too
-                file_encode = checkEncoding(fname)
-
                 # It exists, read it and get the data
                 if os.path.exists(fname):
-                    with open(fname, "rt", encoding=file_encode) as f_in:
-                        lines = f_in.readlines()
+                    #with open(fname, "rt",
+                              #encoding=checkEncoding(fname)) as f_in:
+                        #lines = f_in.readlines()
+                    lines = readPart(fname)
 
                 # The brick does not exist
                 else:

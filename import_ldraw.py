@@ -149,30 +149,47 @@ def checkEncoding(file_path):
 
 def readPart(partFile):
 
-    # Only a few of the official META commands,
-    # http://www.ldraw.org/article/401.html
-    metaCommands = [b"0 ", b"!LDRAW_ORG", b"LDRAW_ORG", b"Name"]
+    # Official META commands, http://www.ldraw.org/article/401.html
+    metaCommands = [b"Author", b"BFC", b"!CATEGORY", b"CLEAR", b"!CMDLINE",
+                    b"!COLOUR", b"!HELP", b"!HISTORY", b"!KEYWORDS",
+                    b"!LDRAW_ORG", b"LDRAW_ORG", b"!LICENSE", b"Name"
+                   ]
 
     with open(partFile, "rb") as f:
         partContent = f.readlines()
 
-    """
-    Preform a four-fold check:
-     * Blank lines
-     * Lines that start with 0
-     * Lines that do NOT start with a 0 and +
-     * Lines that do NOT start with a 0 and -
-    """
+    # Always remove the first line (part name and number)
+    del partContent[0]
 
     for command in metaCommands:
         for line in partContent:
-
-            # A line that meet tha criteria was found, remove it from the data
-            if (
-                line == b"\r\n" or line.startswith(b"0") and
-                not (line.startswith(b"0 +") or line.startswith(b"0 -"))
-            ):
+            if line[2:].startswith(command):
                 del partContent[partContent.index(line)]
+
+    ## Only a few of the official META commands,
+    ## http://www.ldraw.org/article/401.html
+    #metaCommands = [b"0 ", b"!LDRAW_ORG", b"LDRAW_ORG", b"Name"]
+
+    #with open(partFile, "rb") as f:
+        #partContent = f.readlines()
+
+    #"""
+    #Preform a four-fold check:
+     #* Blank lines
+     #* Lines that start with 0
+     #* Lines that do NOT start with a 0 and +
+     #* Lines that do NOT start with a 0 and -
+    #"""
+
+    #for command in metaCommands:
+        #for line in partContent:
+
+            ## A line that meet tha criteria was found, remove it from the data
+            #if (
+                #line == b"\r\n" or line.startswith(b"0") and
+                #not (line.startswith(b"0 +") or line.startswith(b"0 -"))
+            #):
+                #del partContent[partContent.index(line)]
 
     # Convert the data back to strings
     newPartContent = [strLine.decode("utf-8") for strLine in partContent]

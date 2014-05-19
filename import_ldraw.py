@@ -150,21 +150,21 @@ def checkEncoding(file_path):
 def readPart(partFile):
 
     # Official META commands, http://www.ldraw.org/article/401.html
-    metaCommands = [b"Author", b"BFC", b"!CATEGORY", b"CLEAR", b"!CMDLINE",
-                    b"!COLOUR", b"!HELP", b"!HISTORY", b"!KEYWORDS",
-                    b"!LDRAW_ORG", b"LDRAW_ORG", b"!LICENSE", b"Name"
-                   ]
+#    metaCommands = [b"Author", b"BFC", b"!CATEGORY", b"CLEAR", b"!CMDLINE",
+#                    b"!COLOUR", b"!HELP", b"!HISTORY", b"!KEYWORDS",
+#                    b"!LDRAW_ORG", b"LDRAW_ORG", b"!LICENSE", b"Name"
+#                   ]
 
     with open(partFile, "rb") as f:
         partContent = f.readlines()
 
-    # Always remove the first line (part name and number)
-    del partContent[0]
-
-    for command in metaCommands:
-        for line in partContent:
-            if line[2:].startswith(command):
-                del partContent[partContent.index(line)]
+#    # Always remove the first line (part name and number)
+#    del partContent[0]
+#
+#    for command in metaCommands:
+#        for line in partContent:
+#            if line[2:].startswith(command):
+#                del partContent[partContent.index(line)]
 
     ## Only a few of the official META commands,
     ## http://www.ldraw.org/article/401.html
@@ -192,7 +192,7 @@ def readPart(partFile):
                 #del partContent[partContent.index(line)]
 
     # Convert the data back to strings
-    newPartContent = [strLine.decode("utf-8") for strLine in partContent]
+    newPartContent = [strLine.decode("utf_8", "ignore") for strLine in partContent]
 
     return newPartContent
 

@@ -32,6 +32,7 @@ bl_info = {
 }
 
 import os
+import re
 from time import strftime
 
 import bpy
@@ -280,10 +281,18 @@ class LDRImporterOperator(bpy.types.Operator, ImportHelper):
         if "\\" in filename:
             filename = filename.replace("\\", os.path.sep)
 
-        # Remove possible colons in filenames
-        #TODO: Expand to use a regex search for all illegal characters on Windows
-        if ":" in filename:
-            filename = filename.replace(":", os.path.sep)
+        # Remove possible unallowed characters in filenames
+        illegalChars = re.compile(r"[':*?<>|\"]+")
+        regCheck = illegalChars.search(filename)
+
+        if regCheck is not None:
+            for char in regCheck.group():
+
+                # Replace colons with path separator (#TODO: Why?)
+                if char == ":":
+                    filename = filename.replace(char, os.path.sep)
+                else:
+                    filename = filename.replace(char, "")
 
         if filename in self.part_cache:
             return self.part_cache[filename]

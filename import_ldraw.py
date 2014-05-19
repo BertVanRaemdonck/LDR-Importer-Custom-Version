@@ -130,24 +130,41 @@ except Exception as e:
                type(e).__name__))
 
 
-def checkEncoding(file_path):
-    """Check the encoding of a file for Endian encoding"""
-
-    # Open it, read just the area containing a possible byte mark
-    with open(file_path, "rb") as encode_check:
-        encoding = encode_check.readline(3)
+def checkEncoding(encoding):
+    """Check the encoding of a part"""
 
     # The file uses UCS-2 (UTF-16) Big Endian encoding
     if encoding == b"\xfe\xff\x00":
         return "utf_16_be"
 
     # The file uses UCS-2 (UTF-16) Little Endian
-    elif encoding == b"\xff\xfe0":
+    # There seem to be two variants of UCS-2LE that must be checked for
+    elif encoding in (b"\xff\xfe0", b"\xff\xfe/"):
         return "utf_16_le"
 
     # Use LDraw model stantard UTF-8
     else:
         return "utf_8"
+
+
+def readPart(filePath):
+    """Read parts using their proper encoding (#37)"""
+
+    # First, read the part as bytes
+    with open(filePath, "rb") as f:
+        partContent= f.readlines()
+
+    # Then get the part encoding
+    partEncoding = checkEncoding(partContent[0][:3])
+
+    #if partEncoding == "utf_16_le":
+    #    debugPrint("UTF-16-LE detected")
+
+    # Now convert the bytes to the proper encoding, replacing misunderstood characters
+    # with understood ones
+    # (replacing would only occur in part header, per LDraw file format)
+#    return [strLine.decode(partEncoding, "ignore") for strLine in partContent]
+    return [strLine.decode(partEncoding, "replace") for strLine in partContent]
 
 
 class LDrawFile(object):
@@ -260,37 +277,27 @@ class LDrawFile(object):
         self.material_index.append(color)
 
     def parse(self, filename):
-        """Construct tri's in each brick"""
+        """Construct each part"""
         #FIXME: v1.2 rewrite - Rework function (#35)
         subfiles = []
 
         while True:
             isPart = False
             if os.path.exists(filename):
-
-                # Check encoding of `filename` for non UTF-8 compatibility
-                # GitHub Issue #37
-                file_encode = checkEncoding(filename)
-
                 # Check if this is a main part or a subpart
                 if not isSubPart(filename):
                     isPart = True
 
                 # Read the brick using relative path (to entire model)
-                with open(filename, "rt", encoding=file_encode) as f_in:
-                    lines = f_in.readlines()
+                lines = readPart(filename)
 
             else:
                 # Search for the brick in the various folders
                 fname, isPart = locate(filename)
 
-                # Check encoding of `fname` too
-                file_encode = checkEncoding(fname)
-
                 # It exists, read it and get the data
                 if os.path.exists(fname):
-                    with open(fname, "rt", encoding=file_encode) as f_in:
-                        lines = f_in.readlines()
+                    lines = readPart(fname)
 
                 # The brick does not exist
                 else:

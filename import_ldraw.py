@@ -148,23 +148,25 @@ def checkEncoding(encoding):
 
 
 def readPart(filePath):
-    """Read parts using their proper encoding (#37)"""
+    """Read parts using their proper encoding"""
 
     # First, read the part as bytes
     with open(filePath, "rb") as f:
-        partContent= f.readlines()
+        partContent = f.read()
 
     # Then get the part encoding
-    partEncoding = checkEncoding(partContent[0][:3])
+    partEncoding = checkEncoding(partContent[:3])
 
-    #if partEncoding == "utf_16_le":
-    #    debugPrint("UTF-16-LE detected")
+    # Now convert the bytes to the proper string encoding
+    partContent = partContent.decode(partEncoding).encode("utf-8")
 
-    # Now convert the bytes to the proper encoding, replacing misunderstood characters
-    # with understood ones
-    # (replacing would only occur in part header, per LDraw file format)
-#    return [strLine.decode(partEncoding, "ignore") for strLine in partContent]
-    return [strLine.decode(partEncoding, "replace") for strLine in partContent]
+    # Use proper new line characters depending on file encoding
+    if partEncoding == "utf_16_le":
+        partContent = str(partContent, partEncoding).split("\n")
+    else:
+        partContent = str(partContent, partEncoding).split("\r\n")
+
+    return partContent
 
 
 class LDrawFile(object):

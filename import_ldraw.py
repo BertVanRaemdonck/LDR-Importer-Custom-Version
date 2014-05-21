@@ -95,16 +95,6 @@ config_filename = os.path.abspath(os.path.join(config_path, "config.py"))
 #FIXME: v1.2 rewrite - Placeholder until rewrite.
 file_directory = ""
 
-
-def debugPrint(*myInput):
-    """Debug print with identification timestamp"""
-    # Format the output like print() does
-    myOutput = [str(say) for say in myInput]
-
-    # `strftime("%H:%M:%S.%f")[:-4]` trims milliseconds down to two places
-    print("\n[LDR Importer] {0} - {1}\n".format(
-        " ".join(myOutput), datetime.now().strftime("%H:%M:%S.%f")[:-4]))
-
 # Attempt to read and use the path in the config
 try:
     # A hacky trick that basically is: from config import *
@@ -130,6 +120,17 @@ except Exception as e:
                type(e).__name__))
 
 
+def debugPrint(*myInput):
+    """Debug print with identification timestamp"""
+
+    # Format the output like print() does
+    myOutput = [str(say) for say in myInput]
+
+    # `strftime("%H:%M:%S.%f")[:-4]` trims milliseconds down to two places
+    print("\n[LDR Importer] {0} - {1}\n".format(
+        " ".join(myOutput), datetime.now().strftime("%H:%M:%S.%f")[:-4]))
+
+
 def checkEncoding(encoding):
     """Check the encoding of a part"""
 
@@ -142,29 +143,38 @@ def checkEncoding(encoding):
     elif encoding in (b"\xff\xfe0", b"\xff\xfe/"):
         return "utf_16_le"
 
-    # Use LDraw model stantard UTF-8
+    # Use LDraw part standard UTF-8
     else:
         return "utf_8"
 
 
-def readPart(filePath):
+def readPart(partPath):
     """Read parts using their proper encoding"""
 
-    # First, read the part as bytes
-    with open(filePath, "rb") as f:
+    debugPrint("Part being read: ", partPath)
+    # First, read the part content as bytes
+    with open(partPath, "rb") as f:
         partContent = f.read()
 
-    # Then get the part encoding
+    # Then, get the part encoding
     partEncoding = checkEncoding(partContent[:3])
+    debugPrint("Part encoding, Encoding header: ",
+               partEncoding, partContent[:3])
 
-    # Now convert the bytes to the proper string encoding
+    # Now decode the bytes to the proper string encoding
     partContent = partContent.decode(partEncoding).encode("utf-8")
 
-    # Use proper new line characters depending on file encoding
+    # Split into an array using appropriate new line characters
+    # depending on the file encoding
     if partEncoding == "utf_16_le":
+        debugPrint("UTF-16LE encoding detected, use \\n new lines")
         partContent = str(partContent, partEncoding).split("\n")
     else:
+        debugPrint("UTF-8 or UTF-16BE encoding detected, use \\r\\n new lines")
         partContent = str(partContent, partEncoding).split("\r\n")
+
+    debugPrint("The part content type is an: ", type(partContent))
+    debugPrint("(Should be <class 'list'>)")
 
     return partContent
 

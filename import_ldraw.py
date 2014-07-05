@@ -148,6 +148,12 @@ def checkEncoding(encoding):
         return "utf_8"
 
 
+def getNewLineChar(partPath):
+    """Detect a part's new line character"""
+    with open(partPath, "rb") as f:
+        line = f.readline()
+
+
 def readPart(partPath):
     """Read parts using their proper encoding"""
 

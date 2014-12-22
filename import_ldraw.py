@@ -66,7 +66,7 @@ Index 3: User defined, raw string
 Storing the paths in a list prevents the creation of global variables
 if they are changed. Instead, simply update the proper index.
 """
-LDrawDirs = ["C:\\LDraw", "/Applications/ldraw/", "~/ldraw/", r""]
+LDrawDirs = [r"C:\LDraw", "/Applications/ldraw/", "~/ldraw/", r""]
 
 
 def debugPrint(*myInput):
@@ -155,45 +155,28 @@ def getNewLineChar(partPath):
     regex = re.compile(b"(\r\n)$|\r$|\n$")
     match = regex.search(line)
     if match:
-        return str(match.group(0))
-    return "\n"
+        return match.group(0)
+    return b"\n"
 
 
 def readPart(partPath):
     """Read parts using their proper encoding."""
-    debugPrint("Part being read: ", partPath)
-    # First, read the part content as bytes
+    debugPrint("Part being read:\n{0}".format(partPath))
+    # Read the part content as bytes
     with open(partPath, "rb") as f:
         partContent = f.read()
 
-    # Then, get the part encoding
+    # Get the part encoding
     partEncoding = checkEncoding(partContent[:3])
-    debugPrint("Part encoding, Encoding header: ",
-               partEncoding, partContent[:3])
 
-    # Now decode the bytes to the proper string encoding
+    # Convert the bytes to UTF-8 encoding (as they should be)
+    # TODO Remove the BOM
     partContent = partContent.decode(partEncoding).encode("utf-8")
-    newLineChar = getNewLineChar(partPath)
-    
-    print("newlineChar", [newLineChar])
+    newLineChar = b"\r\n"
 
-    # Split into an array using appropriate new line characters
-    # depending on the file encoding
-#    if partEncoding == "utf_16_le":
-#    if partEncoding == "utf_16_be":
-#        newLineChar = r"\r\n"
-#        debugPrint("UTF-16LE encoding detected, use \\n new lines")
-#        partContent = str(partContent, partEncoding).split("\n")
-#    else:
-#        debugPrint("UTF-8 or UTF-16BE encoding detected, use \\r\\n new lines")
-#        partContent = str(partContent, partEncoding).split("\r\n")
-#    partContent = str(partContent, partEncoding).split(newLineChar)
-    partContent = str(partContent, partEncoding).split(newLineChar)
-
-#    debugPrint("The part content type is an: ", type(partContent))
-#    debugPrint("(Should be <class 'list'>)")
-
-    debugPrint(partContent)
+    # Break it into an array, convert to a string
+    partContent = partContent.split(newLineChar)
+    partContent = [str(line, "utf-8") for line in partContent]
     return partContent
 
 

@@ -996,9 +996,9 @@ primsOptions = (
     ("StandardRes", "Standard Primitives",
         "Import primitives using standard resolution"),
     ("HighRes", "High-Res Primitives",
-        "Import primitives using high resolution"),
+        "Import primitives using high resolution. NOTE: This feature may causes mesh errors."),
     ("LowRes", "Low-Res Primitives",
-        "Import primitives using low resolution")
+        "Import primitives using low resolution. NOTE: This feature may causes mesh errors.")
 )
 
 # ------------ Operator ------------ #

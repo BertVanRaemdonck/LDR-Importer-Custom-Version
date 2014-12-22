@@ -34,6 +34,7 @@ bl_info = {
     }
 
 import os
+import re
 import sys
 import math
 import mathutils
@@ -66,6 +67,16 @@ Storing the paths in a list prevents the creation of global variables
 if they are changed. Instead, simply update the proper index.
 """
 LDrawDirs = ["C:\\LDraw", "/Applications/ldraw/", "~/ldraw/", r""]
+
+
+def debugPrint(*myInput):
+    """Debug print with identification timestamp."""
+    # Format the output like print() does
+    myOutput = [str(say) for say in myInput]
+
+    # `[:-4]` trims milliseconds down to two places
+    print("\n[LDR Importer] {0} - {1}\n".format(
+        " ".join(myOutput), datetime.now().strftime("%H:%M:%S.%f")[:-4]))
 
 # Location of configuration file...
 # ...on Windows...
@@ -120,20 +131,8 @@ except Exception as e:
                type(e).__name__))
 
 
-def debugPrint(*myInput):
-    """Debug print with identification timestamp"""
-
-    # Format the output like print() does
-    myOutput = [str(say) for say in myInput]
-
-    # `strftime("%H:%M:%S.%f")[:-4]` trims milliseconds down to two places
-    print("\n[LDR Importer] {0} - {1}\n".format(
-        " ".join(myOutput), datetime.now().strftime("%H:%M:%S.%f")[:-4]))
-
-
 def checkEncoding(encoding):
-    """Check the encoding of a part"""
-
+    """Check the encoding of a part."""
     # The file uses UCS-2 (UTF-16) Big Endian encoding
     if encoding == b"\xfe\xff\x00":
         return "utf_16_be"
@@ -149,14 +148,19 @@ def checkEncoding(encoding):
 
 
 def getNewLineChar(partPath):
-    """Detect a part's new line character"""
+    """Detect a part's new line character."""
     with open(partPath, "rb") as f:
         line = f.readline()
 
+    regex = re.compile(b"(\r\n)$|\r$|\n$")
+    match = regex.search(line)
+    if match:
+        return str(match.group(0))
+    return "\n"
+
 
 def readPart(partPath):
-    """Read parts using their proper encoding"""
-
+    """Read parts using their proper encoding."""
     debugPrint("Part being read: ", partPath)
     # First, read the part content as bytes
     with open(partPath, "rb") as f:
@@ -169,19 +173,27 @@ def readPart(partPath):
 
     # Now decode the bytes to the proper string encoding
     partContent = partContent.decode(partEncoding).encode("utf-8")
+    newLineChar = getNewLineChar(partPath)
+    
+    print("newlineChar", [newLineChar])
 
     # Split into an array using appropriate new line characters
     # depending on the file encoding
-    if partEncoding == "utf_16_le":
-        debugPrint("UTF-16LE encoding detected, use \\n new lines")
-        partContent = str(partContent, partEncoding).split("\n")
-    else:
-        debugPrint("UTF-8 or UTF-16BE encoding detected, use \\r\\n new lines")
-        partContent = str(partContent, partEncoding).split("\r\n")
+#    if partEncoding == "utf_16_le":
+#    if partEncoding == "utf_16_be":
+#        newLineChar = r"\r\n"
+#        debugPrint("UTF-16LE encoding detected, use \\n new lines")
+#        partContent = str(partContent, partEncoding).split("\n")
+#    else:
+#        debugPrint("UTF-8 or UTF-16BE encoding detected, use \\r\\n new lines")
+#        partContent = str(partContent, partEncoding).split("\r\n")
+#    partContent = str(partContent, partEncoding).split(newLineChar)
+    partContent = str(partContent, partEncoding).split(newLineChar)
 
-    debugPrint("The part content type is an: ", type(partContent))
-    debugPrint("(Should be <class 'list'>)")
+#    debugPrint("The part content type is an: ", type(partContent))
+#    debugPrint("(Should be <class 'list'>)")
 
+    debugPrint(partContent)
     return partContent
 
 

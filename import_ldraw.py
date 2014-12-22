@@ -131,20 +131,20 @@ except Exception as e:
                type(e).__name__))
 
 
-def checkEncoding(encoding):
+def checkEncoding(byteOrderMark):
     """Check the encoding of a part."""
     # The file uses UCS-2 (UTF-16) Big Endian encoding
-    if encoding == b"\xfe\xff\x00":
-        return "utf_16_be"
+    if byteOrderMark == b"\xfe\xff\x00":
+        return ("utf_16_be", byteOrderMark)
 
     # The file uses UCS-2 (UTF-16) Little Endian
-    # There seem to be two variants of UCS-2LE that must be checked for
-    elif encoding in (b"\xff\xfe0", b"\xff\xfe/"):
-        return "utf_16_le"
+    # There seem to be two variants of UCS-2LE that must be checked
+    elif byteOrderMark in (b"\xff\xfe0", b"\xff\xfe/"):
+        return ("utf_16_le", byteOrderMark)
 
     # Use LDraw part standard UTF-8
     else:
-        return "utf_8"
+        return ("utf_8", None)
 
 
 def getNewLineChar(partPath):
@@ -167,12 +167,15 @@ def readPart(partPath):
         partContent = f.read()
 
     # Get the part encoding
-    partEncoding = checkEncoding(partContent[:3])
+    partEncoding, byteOrderMark = checkEncoding(partContent[:3])
 
     # Convert the bytes to UTF-8 encoding (as they should be)
-    # TODO Remove the BOM
     partContent = partContent.decode(partEncoding).encode("utf-8")
     newLineChar = b"\r\n"
+
+    # Remove the BOM
+    if (byteOrderMark is not None):
+        partContent.replace(byteOrderMark, b"")
 
     # Break it into an array, convert to a string
     partContent = partContent.split(newLineChar)

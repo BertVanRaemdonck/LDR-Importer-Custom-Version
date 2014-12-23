@@ -191,6 +191,10 @@ class LDrawFile(object):
 
                     f.material_index = me.materials.find(material.name)
 
+                # Prevent Cycles from applying a yellow material everywhere
+                if engine == 'CYCLES' and material is None:
+                    pass
+
             self.ob = bpy.data.objects.new('LDrawObj', me)
             self.ob.name = os.path.basename(filename)
 

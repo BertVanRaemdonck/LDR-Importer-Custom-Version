@@ -134,7 +134,7 @@ except Exception as e:
 def checkEncoding(byteOrderMark):
     """Check the encoding of a part."""
     # The file uses UCS-2 (UTF-16) Big Endian encoding
-    if byteOrderMark == b"\xfe\xff\x00":
+    if b"\xfe\xff\x00" in byteOrderMark:
         return ("utf_16_be", byteOrderMark)
 
     # The file uses UCS-2 (UTF-16) Little Endian
@@ -152,7 +152,7 @@ def getNewLineChar(partPath):
     with open(partPath, "rb") as f:
         line = f.readline()
 
-    regex = re.compile(b"(\r\n)$|\r$|\n$")
+    regex = re.compile(b"(\r\n)$|\r$")
     match = regex.search(line)
     if match:
         return match.group(0)
@@ -171,10 +171,10 @@ def readPart(partPath):
 
     # Convert the bytes to UTF-8 encoding (as they should be)
     partContent = partContent.decode(partEncoding).encode("utf-8")
-    newLineChar = b"\r\n"
+    newLineChar = getNewLineChar(partPath)
 
     # Remove the BOM
-    if (byteOrderMark is not None):
+    if byteOrderMark is not None:
         partContent.replace(byteOrderMark, b"")
 
     # Break it into an array, convert to a string

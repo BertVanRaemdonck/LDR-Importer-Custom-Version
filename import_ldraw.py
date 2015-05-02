@@ -820,7 +820,25 @@ Must be a .ldr or .dat''')
                     bpy.ops.mesh.select_all(action='SELECT')
 
                     # Add small gaps between each brick
-                    bpy.ops.transform.resize(value=(0.99, 0.99, 0.99))
+                    gap_width = 0.3
+                    obj_scale = cur_obj.scale * scale
+                    dim = cur_obj.dimensions
+
+                    # Checks whether the object isn't flat in a certain direction
+                    # to avoid division by zero.
+                    # Otherwise, the scale factor is proportional to the inverse of
+                    # the dimension so that the mesh shrinks a fixed distance
+                    # (determined by the gap_width and the scale of the object)
+                    # in every direction, creating a uniform gap.
+                    if dim.x != 0: fac_x = 1-gap_width*abs(obj_scale.x)/dim.x
+                    else: fac_x = 1
+                    if dim.y != 0: fac_y = 1-gap_width*abs(obj_scale.y)/dim.y
+                    else: fac_y = 1
+                    if dim.z != 0: fac_z = 1-gap_width*abs(obj_scale.z)/dim.z
+                    else: fac_z = 1
+
+                    bpy.ops.transform.resize(value=(fac_x,fac_y,fac_z))
+                    
                     if bpy.ops.object.mode_set.poll():
 
                         # Go back to object mode

@@ -20,5 +20,13 @@ This is a copy of the [LDR Importer](https://github.com/le717/LDR-Importer) proj
 * Fixed a bug that made all materials basic
 * Fixed the gap feature to produce uniform gaps
 * More realistic Pearl Metal materials
-* Bevels on bricks (This requires an extra script compared to the original: "bevel_shader.oso", that you need to place in the same directory as the importer script!)
+* Bevels on bricks (This requires an extra script compared to the original: see note below)
 * Optional LEGO logo on the studs (this requires the "logo3.dat" file in your LDraw parts library)
+
+# Important Note #
+
+In order to get the program to work, you'll need the "bevel_shader.osl" file included in this project. I configured the program to look for the "bevel_shade.oso" file in the same directory as the script however. This is due to the fact that the .osl file has to be compiled everytime by Blender, and since the script is in my C folder, it would ask for permission all the time. The problem is that this .oso file is different on every computer. So to set this up correctly, please follow the following steps:
+* Open Blender, giving it administrator rights.
+* Open a new scene in Blender, select a random object with a material and open the node editor for the material.
+* Add in a script node, select 'External' and set the path to the bevel_shader.osl file, which should be located in the same folder as your "import_ldraw" file. Then, compile the script (the 'refresh' arrows)
+* Now check that folder. It should have the "bevel_shader.oso" file in it now. Now you can begin to use my version of the LDR Importer.

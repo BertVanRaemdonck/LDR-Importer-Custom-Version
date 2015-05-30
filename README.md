@@ -30,4 +30,5 @@ In order to get the program to work, you'll need the "bevel_shader.osl" file inc
 * Open Blender, giving it administrator rights.
 * Open a new scene in Blender, select a random object with a material and open the node editor for the material.
 * Add in a script node, select 'External' and set the path to the bevel_shader.osl file, which should be located in the same folder as your "import_ldraw" file. Then, compile the script (the 'refresh' arrows)
-* Now check that folder. It should have the "bevel_shader.oso" file in it now. Now you can begin to use my version of the LDR Importer.
+* Now check that folder. It should have the "bevel_shader.oso" file in it now.
+* You can now open a new file and go to import -> LDraw. In order to have the bevels show up, you need to render in Cycles, with the CPU and the "Open Shading Language" checkbox enabled.

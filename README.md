@@ -21,7 +21,7 @@ This is a copy of the [LDR Importer](https://github.com/le717/LDR-Importer) proj
 * Fixed the gap feature to produce uniform gaps
 * More realistic Pearl Metal materials
 * Bevels on bricks (This requires an extra script compared to the original: see note below)
-* Optional LEGO logo on the studs (this requires the "logo3.dat" file in your LDraw parts library)
+* Optional LEGO logo on the studs (this requires the "logo3.dat" file in your LDraw parts library. You can find it in this repository)
 
 # Important Note #
 

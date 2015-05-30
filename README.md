@@ -26,6 +26,7 @@ This is a copy of the [LDR Importer](https://github.com/le717/LDR-Importer) proj
 # Important Note #
 
 In order to get the program to work, you'll need the "bevel_shader.osl" file included in this project. I configured the program to look for the "bevel_shade.oso" file in the same directory as the script however. This is due to the fact that the .osl file has to be compiled everytime by Blender, and since the script is in my C folder, it would ask for permission all the time. The problem is that this .oso file is different on every computer. So to set this up correctly, please follow the following steps:
+* Put the "bevel_shader.osl" file in the same directory as the "import_ldraw.py" file.
 * Open Blender, giving it administrator rights.
 * Open a new scene in Blender, select a random object with a material and open the node editor for the material.
 * Add in a script node, select 'External' and set the path to the bevel_shader.osl file, which should be located in the same folder as your "import_ldraw" file. Then, compile the script (the 'refresh' arrows)
